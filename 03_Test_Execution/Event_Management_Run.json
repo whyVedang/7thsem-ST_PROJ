@@ -1,0 +1,60 @@
+{
+  "target": "Hi.Events v2.2.0",
+  "method": "Codex-assisted local API verification",
+  "executedAt": "2026-11-24T17:35:31.307Z",
+  "client": "v22.22.1",
+  "organizerId": 1,
+  "eventStart": "2026-12-01T18:00:00Z",
+  "eventEnd": "2026-12-01T20:00:00Z",
+  "timezone": "UTC",
+  "results": [
+    {
+      "id": "EM-01",
+      "name": "Create a draft",
+      "status": "Pass",
+      "actual": "HTTP 200 created the requested Draft with the 18:00 and 20:00 dates."
+    },
+    {
+      "id": "EM-02",
+      "name": "Require event name",
+      "status": "Pass",
+      "actual": "HTTP 422 returned title validation for the blank name."
+    },
+    {
+      "id": "EM-03",
+      "name": "Reject an end before start",
+      "status": "Pass",
+      "actual": "HTTP 422 rejected the 17:59 end with an 18:00 start."
+    },
+    {
+      "id": "EM-04",
+      "name": "Hide draft from guests",
+      "status": "Pass",
+      "actual": "Guest received HTTP 404 while the organizer received HTTP 200 with Draft."
+    },
+    {
+      "id": "EM-05",
+      "name": "Save free ticket settings",
+      "status": "Pass",
+      "actual": "A fresh authenticated GET confirmed FREE, quantity 5, limits 1–2 and Workshop quantity 3."
+    },
+    {
+      "id": "EM-06",
+      "name": "Publish and read public event",
+      "status": "Pass",
+      "actual": "Published Live; guest HTTP 200 included the matching title and Free ticket."
+    },
+    {
+      "id": "EM-07",
+      "name": "Edit live event description",
+      "status": "Pass",
+      "actual": "The updated description appeared publicly and General Admission remained available."
+    },
+    {
+      "id": "EM-08",
+      "name": "Unpublish and republish",
+      "status": "Pass",
+      "actual": "Guest responses were HTTP 200 → 404 → 200 across Live → Draft → Live."
+    }
+  ]
+}
