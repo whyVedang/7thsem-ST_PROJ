@@ -1,0 +1,6 @@
+services:
+  all-in-one:
+    build: !reset null
+    image: daveearley/hi.events-all-in-one:v2.2.0
+    ports: !override
+      - "127.0.0.1:8123:80"
