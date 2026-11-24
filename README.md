@@ -6,6 +6,10 @@ Person 1 (@whyVedang) prepares the events for the team and checks what an organi
 
 Read the [test plan](01_Test_Plan/Test_Plan.md) and [eight event-management cases](02_Test_Case_Design/Test_Cases.md). The [verification record](03_Test_Execution/Event_Management_Verification.md) contains the results, browser evidence and local handoff links.
 
+### Person 2: Ticket booking
+
+Person 2 verifies guest checkout, quantity limits, inventory boundaries and buyer-field validation. See the [eight booking cases](02_Test_Case_Design/Ticket_Booking_Test_Cases.md) and the [booking verification record](03_Test_Execution/Ticket_Booking_Verification.md) for actual browser/API results, sanitized evidence and the local attendee handoff.
+
 ### Start the local test app
 
 Start Docker with Compose v2.24.4 or later. From this portfolio's root, run the following in PowerShell to create a separate application checkout alongside the portfolio.
