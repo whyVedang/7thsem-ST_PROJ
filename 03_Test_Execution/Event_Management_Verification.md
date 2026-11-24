@@ -1,4 +1,4 @@
-# Person 1 event management verification
+# Event management verification
 
 **Role owner:** @whyVedang. Codex ran the checks for this branch on 24 November 2026. All eight event-management API checks passed on a fresh local Hi.Events v2.2.0 instance. The browser observations below came from automated Chrome sessions, with separate organizer and signed-out guest contexts.
 
@@ -23,4 +23,4 @@ On the machine running this stack, Person 2 can open [Demo](http://localhost:812
 
 Open the organizer and guest Draft screenshots side by side. Then show the published Demo, its two free tickets and the saved description. Use a signed-out window so the organizer session cannot affect the guest check.
 
-The supplied [Person 1 viva handout](../08_Viva_Handouts/Person%201%20-%20Event%20Management.pdf) and [original published-event screenshot](../07_Screenshots/EM-06-published-event.png) belong to the team's earlier assisted reference run at 16:08 IST.
+The supplied [event management viva guide](../08_Viva_Handouts/Event_Management_Viva_Guide.pdf) and [original published-event screenshot](../07_Screenshots/EM-06-published-event.png) belong to the team's earlier assisted reference run at 16:08 IST.

@@ -4,7 +4,7 @@
 
 Person 1 (@whyVedang) prepares the events for the team and checks what an organizer and a signed-out guest can see before and after publication. The system under test is Hi.Events v2.2.0 at commit `6ec8a7915d9e4eb00c12475849ec2e481760226a`.
 
-Read the [test plan](01_Test_Plan/Test_Plan.md) and [eight event-management cases](02_Test_Case_Design/Test_Cases.md). The [verification record](03_Test_Execution/Person_1_Results.md) contains the results, browser evidence and local handoff links.
+Read the [test plan](01_Test_Plan/Test_Plan.md) and [eight event-management cases](02_Test_Case_Design/Test_Cases.md). The [verification record](03_Test_Execution/Event_Management_Verification.md) contains the results, browser evidence and local handoff links.
 
 ### Start the local test app
 
