@@ -1,0 +1,56 @@
+{
+  "target": "Hi.Events v2.2.0",
+  "executedAt": "2026-11-24T18:35:07.686Z",
+  "method": "Copilot-assisted local API run using the supplied functional-suite.mjs; Node.js v24.11.1",
+  "organizerId": 1,
+  "results": [
+    {
+      "id": "BK-01",
+      "name": "Reject zero tickets",
+      "status": "Pass",
+      "actual": "HTTP 422 rejected zero selected tickets."
+    },
+    {
+      "id": "BK-02",
+      "name": "Book one free ticket",
+      "status": "Pass",
+      "actual": "One confirmed ticket at zero cost; 4 remained from five."
+    },
+    {
+      "id": "BK-03",
+      "name": "Book the two-ticket limit",
+      "status": "Pass",
+      "actual": "One completed order held two tickets and three of five remained."
+    },
+    {
+      "id": "BK-04",
+      "name": "Reject three tickets",
+      "status": "Pass",
+      "actual": "HTTP 422 identified the order maximum of 2 before stock was consumed."
+    },
+    {
+      "id": "BK-05",
+      "name": "Reject mismatched emails",
+      "status": "Pass",
+      "actual": "HTTP 422 reported the email confirmation mismatch; order remained Reserved."
+    },
+    {
+      "id": "BK-06",
+      "name": "Require buyer first name",
+      "status": "Pass",
+      "actual": "HTTP 422 reported required first name; order remained Reserved."
+    },
+    {
+      "id": "BK-07",
+      "name": "Consume the final ticket",
+      "status": "Pass",
+      "actual": "Remaining stock moved 3 → 1 → 0; the price reported sold out."
+    },
+    {
+      "id": "BK-08",
+      "name": "Reject a sixth ticket",
+      "status": "Pass",
+      "actual": "HTTP 422 refused a new reservation after sell-out; sold quantity remained 5."
+    }
+  ]
+}
