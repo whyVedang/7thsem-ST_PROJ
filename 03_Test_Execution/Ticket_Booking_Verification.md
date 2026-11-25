@@ -28,6 +28,17 @@ The browser evidence fixtures were `Campus Tech Fest BK Signed-out Demo`, `Limit
 
 **Totals:** 8 passed, 0 failed, 0 blocked in the API suite; all 8 cases were also observed in the signed-out browser. Evidence screenshots redact guest email addresses and order references; checkout session URLs and API credentials were not committed.
 
+## Supplemental browser evidence
+
+A fresh signed-out Chrome rerun on local Hi.Events v2.2.0 on 25 November 2026 used separate Limits and Validation events. The Limits event started with five free General Admission tickets. The runner captured the expanded order summaries in purchase order and verified that the three completed orders sold all five tickets.
+
+| Case | Evidence from the rerun |
+| --- | --- |
+| BK-03 | [First completed order with two tickets](../07_Screenshots/BK-03-two-ticket-summary.png) |
+| BK-05 | [Completed order after correcting the matching email field](../07_Screenshots/BK-05-email-corrected-order.png) |
+| BK-06 | [Completed order after entering the required first name](../07_Screenshots/BK-06-name-corrected-order.png) |
+| BK-07 | [Second completed order with two tickets](../07_Screenshots/BK-07-two-ticket-summary.png) and [final completed order with one ticket](../07_Screenshots/BK-07-final-ticket-confirmation.png) |
+
 ## Person 3 handoff
 
 On the machine running this test database, use the browser Demo event **Campus Tech Fest BK Signed-out Demo** at [the public event page](http://localhost:8123/event/8/campus-tech-fest-bk-signed-out-demo). It has a confirmed **Alex Portfolio — General Admission** attendee from BK-02; the fresh public view shows four of five tickets remaining. Person 3 can sign in to the local Campus QA Lab organizer and create a check-in list for this event.
