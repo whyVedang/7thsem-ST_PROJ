@@ -1,0 +1,151 @@
+{
+  "target": "Hi.Events v2.2.0",
+  "executedAt": "2026-11-25T05:54:34.155Z",
+  "method": "Live local API",
+  "results": [
+    {
+      "id": "BK-01",
+      "name": "Reject zero tickets",
+      "status": "Pass",
+      "actual": "HTTP 422 rejected zero selected tickets."
+    },
+    {
+      "id": "BK-02",
+      "name": "Book one free ticket",
+      "status": "Pass",
+      "actual": "One confirmed ticket at zero cost; 4 remained from five."
+    },
+    {
+      "id": "BK-03",
+      "name": "Book the two-ticket limit",
+      "status": "Pass",
+      "actual": "One completed order held two tickets and three of five remained."
+    },
+    {
+      "id": "BK-04",
+      "name": "Reject three tickets",
+      "status": "Pass",
+      "actual": "HTTP 422 identified the order maximum of 2 before stock was consumed."
+    },
+    {
+      "id": "BK-05",
+      "name": "Reject mismatched emails",
+      "status": "Pass",
+      "actual": "HTTP 422 reported the email confirmation mismatch; order remained Reserved."
+    },
+    {
+      "id": "BK-06",
+      "name": "Require buyer first name",
+      "status": "Pass",
+      "actual": "HTTP 422 reported required first name; order remained Reserved."
+    },
+    {
+      "id": "BK-07",
+      "name": "Consume the final ticket",
+      "status": "Pass",
+      "actual": "Remaining stock moved 3 → 1 → 0; the price reported sold out."
+    },
+    {
+      "id": "BK-08",
+      "name": "Reject a sixth ticket",
+      "status": "Pass",
+      "actual": "HTTP 422 refused a new reservation after sell-out; sold quantity remained 5."
+    },
+    {
+      "id": "CI-01",
+      "name": "Create a restricted door list",
+      "status": "Pass",
+      "actual": "Main Door accepted General Admission and reported 0/1."
+    },
+    {
+      "id": "CI-02",
+      "name": "Find the booked attendee",
+      "status": "Pass",
+      "actual": "Search returned the same single attendee from the booking."
+    },
+    {
+      "id": "CI-03",
+      "name": "Find no unknown attendee",
+      "status": "Pass",
+      "actual": "Unknown name returned no matches and door count stayed 0/1."
+    },
+    {
+      "id": "CI-04",
+      "name": "Check in once",
+      "status": "Pass",
+      "actual": "One check-in was recorded, and a separate stats request showed 1/1."
+    },
+    {
+      "id": "CI-05",
+      "name": "Repeat the same check-in",
+      "status": "Pass",
+      "actual": "The API reported already checked in and returned the original record; count stayed 1/1."
+    },
+    {
+      "id": "CI-06",
+      "name": "Undo check-in",
+      "status": "Pass",
+      "actual": "Undo returned HTTP 204 and the separate stats request returned to 0/1."
+    },
+    {
+      "id": "CI-07",
+      "name": "Exclude the wrong ticket type",
+      "status": "Pass",
+      "actual": "Workshop-only list returned zero eligible attendees and no matching Alex."
+    },
+    {
+      "id": "CI-08",
+      "name": "Verify stats and latest check-in",
+      "status": "Pass",
+      "actual": "Stats showed 1/1 and Alex as most recent; reset restored 0/1."
+    },
+    {
+      "id": "EM-01",
+      "name": "Create a draft",
+      "status": "Pass",
+      "actual": "HTTP 200 created the requested Draft with the 18:00 and 20:00 dates."
+    },
+    {
+      "id": "EM-02",
+      "name": "Require event name",
+      "status": "Pass",
+      "actual": "HTTP 422 returned title validation for the blank name."
+    },
+    {
+      "id": "EM-03",
+      "name": "Reject an end before start",
+      "status": "Pass",
+      "actual": "HTTP 422 rejected the 17:59 end with an 18:00 start."
+    },
+    {
+      "id": "EM-04",
+      "name": "Hide draft from guests",
+      "status": "Pass",
+      "actual": "Guest received HTTP 404 while the organizer received HTTP 200 with Draft."
+    },
+    {
+      "id": "EM-05",
+      "name": "Save free ticket settings",
+      "status": "Pass",
+      "actual": "A fresh authenticated GET confirmed FREE, quantity 5, limits 1–2 and Workshop quantity 3."
+    },
+    {
+      "id": "EM-06",
+      "name": "Publish and read public event",
+      "status": "Pass",
+      "actual": "Published Live; guest HTTP 200 included the matching title and Free ticket."
+    },
+    {
+      "id": "EM-07",
+      "name": "Edit live event description",
+      "status": "Pass",
+      "actual": "The updated description appeared publicly and General Admission remained available."
+    },
+    {
+      "id": "EM-08",
+      "name": "Unpublish and republish",
+      "status": "Pass",
+      "actual": "Guest responses were HTTP 200 → 404 → 200 across Live → Draft → Live."
+    }
+  ]
+}
