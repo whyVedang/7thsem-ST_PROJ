@@ -15,7 +15,21 @@
 | CI-07 Exclude a different ticket type | Alex does not appear in Workshop Door results. Workshop Door shows zero eligible attendees. | Workshop-only list returned zero eligible attendees and no matching Alex. | Pass | Live API result |
 | CI-08 Verify the stats view | Stats shows 1 checked in out of 1 eligible attendee, matching Search. The latest check-in is for the sample attendee. | Stats showed 1/1 and Alex as most recent; reset restored 0/1. | Pass | Live API result |
 
-**Totals** — Eight API cases passed, zero failed and zero were blocked. CI-04 and CI-06 have separate browser evidence. The screenshots mask the attendee identifier.
+**Totals** — Eight API cases passed, zero failed and zero were blocked.
+
+## Supplemental browser evidence
+
+A fresh Chrome rerun on local Hi.Events v2.2.0 on 25 November 2026 used one confirmed General Admission attendee and two ticket-restricted check-in lists. The runner checked Alex in for Stats. A follow-up API check confirmed Main Door was reset to 0/1. Screenshots with a visible attendee identifier mask it.
+
+| Case | Evidence from the rerun |
+| --- | --- |
+| CI-01 | [Main Door restricted to General Admission](../07_Screenshots/CI-01-main-door-ticket-scope.png) and [staff view with 0/1 eligible attendees checked in](../07_Screenshots/CI-02-attendee-before-check-in.png) |
+| CI-02 | [Search finds Alex Portfolio with a General Admission ticket and a Check in action](../07_Screenshots/CI-02-attendee-before-check-in.png) |
+| CI-03 | [Unknown attendee search returns no matches while overall door progress stays at 0/1 in the header](../07_Screenshots/CI-03-unknown-attendee.png) |
+| CI-07 | [Workshop Door restricted to Workshop Pass](../07_Screenshots/CI-07-workshop-door-ticket-scope.png), [search showing no match for Alex](../07_Screenshots/CI-07-workshop-door-empty.png), and [Stats confirming zero eligible attendees](../07_Screenshots/CI-07-workshop-door-stats.png) |
+| CI-08 | [Stats shows 1/1 and Alex Portfolio under Latest check-ins](../07_Screenshots/CI-08-check-in-stats.png) |
+
+The duplicate check-in assertion for CI-05 is recorded in [the API run](Functional_Run.json) and the [Postman collection](../05_Test_Automation/Hi.Events.postman_collection.json).
 
 ## Viva handoff
 
