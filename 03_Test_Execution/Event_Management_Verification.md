@@ -15,6 +15,17 @@ The API run finished at 23:05 IST using Node.js 22.22.1. Chrome 141.0.7390.108 r
 | EM-07 | After the API saved “Student QA demo event.” on Demo, the guest response showed the updated description and General Admission remained available. Chrome displayed the same text under About. | [Description and tickets](../07_Screenshots/EM-06-live-guest.png) |
 | EM-08 | On the order-free Visibility fixture, the guest API returned 200 → 404 → 200 across Live → Draft → Live. Chrome showed the ticket before unpublishing, the unavailable page in Draft and the ticket again after republishing. | [Draft](../07_Screenshots/EM-04-draft-guest.png) · [Restored guest view](../07_Screenshots/EM-08-restored-guest.png) |
 
+## Supplemental browser evidence
+
+A fresh Chrome rerun on local Hi.Events v2.2.0 on 25 November 2026 used a separate visibility event with five free General Admission tickets.
+
+| Case | Evidence from the rerun |
+| --- | --- |
+| EM-05 | [Saved minimum of 1 and maximum of 2 per order](../07_Screenshots/EM-05-order-limits.png) |
+| EM-08 | The same signed-out guest view showed [the live event and its ticket](../07_Screenshots/EM-08-initial-live-guest.png), [the unavailable page after unpublishing](../07_Screenshots/EM-08-unpublished-guest.png), and [the event and ticket again after republishing](../07_Screenshots/EM-08-republished-guest.png). |
+
+The first and last captures are identical because republishing restored the same guest view.
+
 ## Local handoff
 
 On the machine running this stack, Person 2 can open [Demo](http://localhost:8123/event/1/campus-tech-fest-demo), [Limits](http://localhost:8123/event/3/campus-tech-fest-limits) and [Validation](http://localhost:8123/event/4/campus-tech-fest-validation). Person 3 can use the [Demo organizer dashboard](http://localhost:8123/manage/event/1/dashboard) after signing in. At handoff the Demo guest page showed five General Admission and three Workshop Pass tickets available, both free. The [Visibility scratch event](http://localhost:8123/event/2/campus-tech-fest-visibility) was restored to Live.
