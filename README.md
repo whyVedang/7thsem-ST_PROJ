@@ -10,6 +10,14 @@ Read the [test plan](01_Test_Plan/Test_Plan.md) and [eight event-management case
 
 Person 2 verifies guest checkout, quantity limits, inventory boundaries and buyer-field validation. See the [eight booking cases](02_Test_Case_Design/Ticket_Booking_Test_Cases.md) and the [booking verification record](03_Test_Execution/Ticket_Booking_Verification.md) for actual browser/API results, sanitized evidence and the local attendee handoff.
 
+### Person 3: Attendee check-in
+
+Person 3 (@atharvsgit) verifies the door list, attendee search, duplicate check-in and undo. See the [eight check-in cases](02_Test_Case_Design/Attendee_Check_In_Test_Cases.md), [verification and browser evidence](03_Test_Execution/Attendee_Check_In_Verification.md), and [viva handout](08_Viva_Handouts/Attendee_Check_In_Viva_Guide.pdf).
+
+### Team results
+
+The [execution summary](06_Test_Reports/Execution_Summary.md) links all three roles. The [four testing methods](06_Test_Reports/Testing_Methods.md) report black-box browser, white-box, API and automation evidence. See [automation setup](05_Test_Automation/README.md) to reproduce the checks.
+
 ### Start the local test app
 
 Start Docker with Compose v2.24.4 or later. From this portfolio's root, run the following in PowerShell to create a separate application checkout alongside the portfolio.
