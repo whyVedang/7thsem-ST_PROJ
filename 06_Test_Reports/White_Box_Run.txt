@@ -1,0 +1,11 @@
+PASS | WB-01 No activation time: active | expected=true actual=true
+PASS | WB-02 Activation in the future: inactive | expected=false actual=false
+PASS | WB-03 Activation exactly now: inactive | expected=false actual=false
+PASS | WB-04 Activation in the past: active | expected=true actual=true
+PASS | WB-05 No expiration time: not expired | expected=false actual=false
+PASS | WB-06 Expiration in the future: not expired | expected=false actual=false
+PASS | WB-07 Expiration exactly now: not expired | expected=false actual=false
+PASS | WB-08 Expiration in the past: expired | expected=true actual=true
+PASS | WB-09 Zero order total: no payment required | expected=false actual=false
+PASS | WB-10 Positive order total: payment required | expected=true actual=true
+10/10 white-box checks passed.
