@@ -1,0 +1,1109 @@
+{
+  "info": {
+    "name": "Hi.Events v2.2.0 team portfolio",
+    "description": "Run all folders in order against a local Hi.Events v2.2.0 test instance. Each run creates an isolated event and a free order. It ends with the attendee checked out.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{api_key}}",
+        "type": "string"
+      }
+    ]
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "const stop = (message) => {",
+          "    pm.variables.set('api_base', 'http://127.0.0.1:1/api');",
+          "    pm.execution.setNextRequest(null);",
+          "    throw new Error(message);",
+          "};",
+          "const base = pm.environment.get('api_base') || '';",
+          "if (!/^http:\\/\\/(localhost|127\\.0\\.0\\.1):\\d+\\/api$/.test(base)) {",
+          "    stop('Set api_base to your local Hi.Events URL ending in /api.');",
+          "}",
+          "if (!/^hie_\\S+$/.test(pm.environment.get('api_key') || '')) {",
+          "    stop('Set api_key to a local Hi.Events read/write API key.');",
+          "}",
+          "if (!/^[1-9]\\d*$/.test(String(pm.environment.get('organizer_id') || ''))) {",
+          "    stop('Set organizer_id to your local organizer\u2019s numeric ID.');",
+          "}"
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "name": "Person 1 Event management",
+      "item": [
+        {
+          "name": "A01 Create an isolated draft event",
+          "request": {
+            "method": "POST",
+            "url": "{{api_base}}/events",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "en"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"{{event_title}}\",\n  \"type\": \"SINGLE\",\n  \"organizer_id\": {{organizer_id}},\n  \"start_date\": \"{{start_date}}\",\n  \"category\": \"MUSIC\",\n  \"currency\": \"USD\",\n  \"timezone\": \"UTC\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const run = Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8);",
+                  "pm.variables.set('event_title', 'Campus Tech Fest QA ' + run);",
+                  "pm.variables.set('buyer_email', 'alex-' + run + '@example.com');",
+                  "pm.variables.set('start_date', new Date(Date.now() + 7 * 86400000).toISOString());"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const check = (label, assertion) => {",
+                  "    let failed = false;",
+                  "    pm.test(label, () => {",
+                  "        try { assertion(); } catch (error) { failed = true; throw error; }",
+                  "    });",
+                  "    if (failed) {",
+                  "        pm.execution.setNextRequest(null);",
+                  "        throw new Error('Stopping at failed assertion: ' + label);",
+                  "    }",
+                  "};",
+                  "check('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const result = pm.response.json();",
+                  "check('A draft with the run title was created', () => {",
+                  "    pm.expect(result.data.id).to.be.a('number');",
+                  "    pm.expect(result.data.title).to.equal(pm.variables.get('event_title'));",
+                  "    pm.expect(result.data.status).to.equal('DRAFT');",
+                  "});",
+                  "pm.variables.set('event_id', result.data.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "A02 Guest cannot open the draft",
+          "request": {
+            "method": "GET",
+            "url": "{{api_base}}/public/events/{{event_id}}",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "en"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const check = (label, assertion) => {",
+                  "    let failed = false;",
+                  "    pm.test(label, () => {",
+                  "        try { assertion(); } catch (error) { failed = true; throw error; }",
+                  "    });",
+                  "    if (failed) {",
+                  "        pm.execution.setNextRequest(null);",
+                  "        throw new Error('Stopping at failed assertion: ' + label);",
+                  "    }",
+                  "};",
+                  "check('HTTP 404', () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "A03 Read the default product category",
+          "request": {
+            "method": "GET",
+            "url": "{{api_base}}/events/{{event_id}}/product-categories",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "en"
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const check = (label, assertion) => {",
+                  "    let failed = false;",
+                  "    pm.test(label, () => {",
+                  "        try { assertion(); } catch (error) { failed = true; throw error; }",
+                  "    });",
+                  "    if (failed) {",
+                  "        pm.execution.setNextRequest(null);",
+                  "        throw new Error('Stopping at failed assertion: ' + label);",
+                  "    }",
+                  "};",
+                  "check('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const result = pm.response.json();",
+                  "check('The event has a default product category', () => {",
+                  "    pm.expect(result.data).to.be.an('array').that.is.not.empty;",
+                  "    pm.expect(result.data[0].id).to.be.a('number');",
+                  "});",
+                  "pm.variables.set('category_id', result.data[0].id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "A04 Create a free ticket",
+          "request": {
+            "method": "POST",
+            "url": "{{api_base}}/events/{{event_id}}/products",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "en"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"General Admission\",\n  \"product_type\": \"TICKET\",\n  \"type\": \"FREE\",\n  \"product_category_id\": {{category_id}},\n  \"min_per_order\": 1,\n  \"max_per_order\": 2,\n  \"show_quantity_remaining\": true,\n  \"hide_when_sold_out\": false,\n  \"prices\": [\n    {\n      \"price\": 0,\n      \"initial_quantity_available\": 5\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const check = (label, assertion) => {",
+                  "    let failed = false;",
+                  "    pm.test(label, () => {",
+                  "        try { assertion(); } catch (error) { failed = true; throw error; }",
+                  "    });",
+                  "    if (failed) {",
+                  "        pm.execution.setNextRequest(null);",
+                  "        throw new Error('Stopping at failed assertion: ' + label);",
+                  "    }",
+                  "};",
+                  "check('HTTP 201', () => pm.response.to.have.status(201));",
+                  "const result = pm.response.json();",
+                  "check('General Admission was created', () => {",
+                  "    pm.expect(result.data.title).to.equal('General Admission');",
+                  "    pm.expect(result.data.id).to.be.a('number');",
+                  "});",
+                  "pm.variables.set('product_id', result.data.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "A05 Verify the saved price quota and limits",
+          "request": {
+            "method": "GET",
+            "url": "{{api_base}}/events/{{event_id}}/products/{{product_id}}",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "en"
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const check = (label, assertion) => {",
+                  "    let failed = false;",
+                  "    pm.test(label, () => {",
+                  "        try { assertion(); } catch (error) { failed = true; throw error; }",
+                  "    });",
+                  "    if (failed) {",
+                  "        pm.execution.setNextRequest(null);",
+                  "        throw new Error('Stopping at failed assertion: ' + label);",
+                  "    }",
+                  "};",
+                  "check('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const result = pm.response.json();",
+                  "const product = result.data;",
+                  "check('Free ticket has five available and a one-to-two order limit', () => {",
+                  "    pm.expect(product.type).to.equal('FREE');",
+                  "    pm.expect(product.max_per_order).to.equal(2);",
+                  "    pm.expect(product.min_per_order).to.equal(1);",
+                  "    pm.expect(product.prices).to.have.lengthOf(1);",
+                  "    pm.expect(product.prices[0].id).to.be.a('number');",
+                  "    pm.expect(product.prices[0].initial_quantity_available).to.equal(5);",
+                  "});",
+                  "pm.variables.set('price_id', product.prices[0].id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "A06 Publish the event",
+          "request": {
+            "method": "PUT",
+            "url": "{{api_base}}/events/{{event_id}}/status",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "en"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"LIVE\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const check = (label, assertion) => {",
+                  "    let failed = false;",
+                  "    pm.test(label, () => {",
+                  "        try { assertion(); } catch (error) { failed = true; throw error; }",
+                  "    });",
+                  "    if (failed) {",
+                  "        pm.execution.setNextRequest(null);",
+                  "        throw new Error('Stopping at failed assertion: ' + label);",
+                  "    }",
+                  "};",
+                  "check('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const result = pm.response.json();",
+                  "check('Organizer sees LIVE', () => pm.expect(result.data.status).to.equal('LIVE'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "A07 Guest can open the live event",
+          "request": {
+            "method": "GET",
+            "url": "{{api_base}}/public/events/{{event_id}}",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "en"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const check = (label, assertion) => {",
+                  "    let failed = false;",
+                  "    pm.test(label, () => {",
+                  "        try { assertion(); } catch (error) { failed = true; throw error; }",
+                  "    });",
+                  "    if (failed) {",
+                  "        pm.execution.setNextRequest(null);",
+                  "        throw new Error('Stopping at failed assertion: ' + label);",
+                  "    }",
+                  "};",
+                  "check('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const result = pm.response.json();",
+                  "check('Public response shows the same live event', () => {",
+                  "    pm.expect(result.data.id).to.equal(pm.variables.get('event_id'));",
+                  "    pm.expect(result.data.title).to.equal(pm.variables.get('event_title'));",
+                  "    pm.expect(result.data.status).to.equal('LIVE');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Person 2 Ticket booking",
+      "item": [
+        {
+          "name": "B01 Reject a zero-ticket order",
+          "request": {
+            "method": "POST",
+            "url": "{{api_base}}/public/events/{{event_id}}/order",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "en"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"products\": [\n    {\n      \"product_id\": {{product_id}},\n      \"quantities\": [\n        {\n          \"price_id\": {{price_id}},\n          \"quantity\": 0\n        }\n      ]\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const check = (label, assertion) => {",
+                  "    let failed = false;",
+                  "    pm.test(label, () => {",
+                  "        try { assertion(); } catch (error) { failed = true; throw error; }",
+                  "    });",
+                  "    if (failed) {",
+                  "        pm.execution.setNextRequest(null);",
+                  "        throw new Error('Stopping at failed assertion: ' + label);",
+                  "    }",
+                  "};",
+                  "check('HTTP 422', () => pm.response.to.have.status(422));",
+                  "const result = pm.response.json();",
+                  "check('Validation rejected the empty selection', () => {",
+                  "    pm.expect(result.errors.products).to.be.an('array').that.is.not.empty;",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "B02 Reject three tickets when the order limit is two",
+          "request": {
+            "method": "POST",
+            "url": "{{api_base}}/public/events/{{event_id}}/order",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "en"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"products\": [\n    {\n      \"product_id\": {{product_id}},\n      \"quantities\": [\n        {\n          \"price_id\": {{price_id}},\n          \"quantity\": 3\n        }\n      ]\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const check = (label, assertion) => {",
+                  "    let failed = false;",
+                  "    pm.test(label, () => {",
+                  "        try { assertion(); } catch (error) { failed = true; throw error; }",
+                  "    });",
+                  "    if (failed) {",
+                  "        pm.execution.setNextRequest(null);",
+                  "        throw new Error('Stopping at failed assertion: ' + label);",
+                  "    }",
+                  "};",
+                  "check('HTTP 422', () => pm.response.to.have.status(422));",
+                  "const result = pm.response.json();",
+                  "check('The per-order maximum was enforced', () => {",
+                  "    pm.expect(result.errors['products.0'].join(' ')).to.match(/maximum.*2/i);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "B03 Reserve one ticket",
+          "request": {
+            "method": "POST",
+            "url": "{{api_base}}/public/events/{{event_id}}/order",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "en"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"products\": [\n    {\n      \"product_id\": {{product_id}},\n      \"quantities\": [\n        {\n          \"price_id\": {{price_id}},\n          \"quantity\": 1\n        }\n      ]\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const check = (label, assertion) => {",
+                  "    let failed = false;",
+                  "    pm.test(label, () => {",
+                  "        try { assertion(); } catch (error) { failed = true; throw error; }",
+                  "    });",
+                  "    if (failed) {",
+                  "        pm.execution.setNextRequest(null);",
+                  "        throw new Error('Stopping at failed assertion: ' + label);",
+                  "    }",
+                  "};",
+                  "check('HTTP 201', () => pm.response.to.have.status(201));",
+                  "const result = pm.response.json();",
+                  "const order = result.data;",
+                  "check('Reservation is RESERVED and has a checkout session', () => {",
+                  "    pm.expect(order.status).to.equal('RESERVED');",
+                  "    pm.expect(order.short_id).to.be.a('string').that.is.not.empty;",
+                  "    pm.expect(order.session_identifier).to.be.a('string').that.is.not.empty;",
+                  "});",
+                  "pm.variables.set('order_short_id', order.short_id);",
+                  "pm.variables.set('session_id', encodeURIComponent(order.session_identifier));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "B04 Complete the free order",
+          "request": {
+            "method": "PUT",
+            "url": "{{api_base}}/public/events/{{event_id}}/order/{{order_short_id}}?session_identifier={{session_id}}",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "en"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"order\": {\n    \"first_name\": \"Alex\",\n    \"last_name\": \"Portfolio\",\n    \"email\": \"{{buyer_email}}\",\n    \"email_confirmation\": \"{{buyer_email}}\"\n  },\n  \"products\": [\n    {\n      \"first_name\": \"Alex\",\n      \"last_name\": \"Portfolio\",\n      \"email\": \"{{buyer_email}}\",\n      \"email_confirmation\": \"{{buyer_email}}\",\n      \"product_id\": {{product_id}},\n      \"product_price_id\": {{price_id}}\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const check = (label, assertion) => {",
+                  "    let failed = false;",
+                  "    pm.test(label, () => {",
+                  "        try { assertion(); } catch (error) { failed = true; throw error; }",
+                  "    });",
+                  "    if (failed) {",
+                  "        pm.execution.setNextRequest(null);",
+                  "        throw new Error('Stopping at failed assertion: ' + label);",
+                  "    }",
+                  "};",
+                  "check('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const result = pm.response.json();",
+                  "check('Order transitioned to COMPLETED and total is zero', () => {",
+                  "    pm.expect(result.data.status).to.equal('COMPLETED');",
+                  "    pm.expect(Number(result.data.total_gross)).to.equal(0);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "B05 Fetch confirmation and attendee",
+          "request": {
+            "method": "GET",
+            "url": "{{api_base}}/public/events/{{event_id}}/order/{{order_short_id}}?session_identifier={{session_id}}",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "en"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const check = (label, assertion) => {",
+                  "    let failed = false;",
+                  "    pm.test(label, () => {",
+                  "        try { assertion(); } catch (error) { failed = true; throw error; }",
+                  "    });",
+                  "    if (failed) {",
+                  "        pm.execution.setNextRequest(null);",
+                  "        throw new Error('Stopping at failed assertion: ' + label);",
+                  "    }",
+                  "};",
+                  "check('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const result = pm.response.json();",
+                  "const record = result.data;",
+                  "check('Same order is completed with one active attendee', () => {",
+                  "    pm.expect(record.short_id).to.equal(pm.variables.get('order_short_id'));",
+                  "    pm.expect(record.status).to.equal('COMPLETED');",
+                  "    pm.expect(record.attendees).to.have.lengthOf(1);",
+                  "    pm.expect(record.attendees[0].status).to.equal('ACTIVE');",
+                  "    pm.expect(record.attendees[0].public_id).to.be.a('string').that.is.not.empty;",
+                  "});",
+                  "pm.variables.set('attendee_public_id', record.attendees[0].public_id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "B06 Confirm one ticket was counted as sold",
+          "request": {
+            "method": "GET",
+            "url": "{{api_base}}/events/{{event_id}}/products/{{product_id}}",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "en"
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const check = (label, assertion) => {",
+                  "    let failed = false;",
+                  "    pm.test(label, () => {",
+                  "        try { assertion(); } catch (error) { failed = true; throw error; }",
+                  "    });",
+                  "    if (failed) {",
+                  "        pm.execution.setNextRequest(null);",
+                  "        throw new Error('Stopping at failed assertion: ' + label);",
+                  "    }",
+                  "};",
+                  "check('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const result = pm.response.json();",
+                  "check('The five-ticket price now has one sale', () => {",
+                  "    pm.expect(result.data.prices[0].initial_quantity_available).to.equal(5);",
+                  "    pm.expect(result.data.prices[0].quantity_sold).to.equal(1);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Person 3 Attendee check-in",
+      "item": [
+        {
+          "name": "C01 Create a list for General Admission",
+          "request": {
+            "method": "POST",
+            "url": "{{api_base}}/events/{{event_id}}/check-in-lists",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "en"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"QA Main Door\",\n  \"product_ids\": [\n    {{product_id}}\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const check = (label, assertion) => {",
+                  "    let failed = false;",
+                  "    pm.test(label, () => {",
+                  "        try { assertion(); } catch (error) { failed = true; throw error; }",
+                  "    });",
+                  "    if (failed) {",
+                  "        pm.execution.setNextRequest(null);",
+                  "        throw new Error('Stopping at failed assertion: ' + label);",
+                  "    }",
+                  "};",
+                  "check('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const result = pm.response.json();",
+                  "check('The named list has a staff link identifier', () => {",
+                  "    pm.expect(result.data.name).to.equal('QA Main Door');",
+                  "    pm.expect(result.data.short_id).to.be.a('string').that.is.not.empty;",
+                  "});",
+                  "pm.variables.set('check_in_list_short_id', result.data.short_id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "C02 Verify initial door count",
+          "request": {
+            "method": "GET",
+            "url": "{{api_base}}/public/check-in-lists/{{check_in_list_short_id}}/stats",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "en"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const check = (label, assertion) => {",
+                  "    let failed = false;",
+                  "    pm.test(label, () => {",
+                  "        try { assertion(); } catch (error) { failed = true; throw error; }",
+                  "    });",
+                  "    if (failed) {",
+                  "        pm.execution.setNextRequest(null);",
+                  "        throw new Error('Stopping at failed assertion: ' + label);",
+                  "    }",
+                  "};",
+                  "check('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const result = pm.response.json();",
+                  "check('Door count is 0/1', () => {",
+                  "    pm.expect(result.data.total_attendees).to.equal(1);",
+                  "    pm.expect(result.data.checked_in_attendees).to.equal(0);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "C03 Check in the attendee",
+          "request": {
+            "method": "POST",
+            "url": "{{api_base}}/public/check-in-lists/{{check_in_list_short_id}}/check-ins",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "en"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"attendees\": [\n    {\n      \"public_id\": \"{{attendee_public_id}}\",\n      \"action\": \"check-in\"\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const check = (label, assertion) => {",
+                  "    let failed = false;",
+                  "    pm.test(label, () => {",
+                  "        try { assertion(); } catch (error) { failed = true; throw error; }",
+                  "    });",
+                  "    if (failed) {",
+                  "        pm.execution.setNextRequest(null);",
+                  "        throw new Error('Stopping at failed assertion: ' + label);",
+                  "    }",
+                  "};",
+                  "check('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const result = pm.response.json();",
+                  "check('Exactly one check-in was recorded', () => {",
+                  "    pm.expect(result.data).to.have.lengthOf(1);",
+                  "    pm.expect(result.data[0].short_id).to.be.a('string').that.is.not.empty;",
+                  "    pm.expect(result.errors || []).to.be.empty;",
+                  "});",
+                  "pm.variables.set('check_in_short_id', result.data[0].short_id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "C04 Repeat the scan",
+          "request": {
+            "method": "POST",
+            "url": "{{api_base}}/public/check-in-lists/{{check_in_list_short_id}}/check-ins",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "en"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"attendees\": [\n    {\n      \"public_id\": \"{{attendee_public_id}}\",\n      \"action\": \"check-in\"\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const check = (label, assertion) => {",
+                  "    let failed = false;",
+                  "    pm.test(label, () => {",
+                  "        try { assertion(); } catch (error) { failed = true; throw error; }",
+                  "    });",
+                  "    if (failed) {",
+                  "        pm.execution.setNextRequest(null);",
+                  "        throw new Error('Stopping at failed assertion: ' + label);",
+                  "    }",
+                  "};",
+                  "check('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const result = pm.response.json();",
+                  "check('Existing check-in is returned and the duplicate is reported', () => {",
+                  "    pm.expect(result.data).to.have.lengthOf(1);",
+                  "    pm.expect(result.data[0].short_id).to.equal(pm.variables.get('check_in_short_id'));",
+                  "    pm.expect(JSON.stringify(result.errors)).to.match(/already checked in/i);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "C05 Verify duplicate did not change the count",
+          "request": {
+            "method": "GET",
+            "url": "{{api_base}}/public/check-in-lists/{{check_in_list_short_id}}/stats",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "en"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const check = (label, assertion) => {",
+                  "    let failed = false;",
+                  "    pm.test(label, () => {",
+                  "        try { assertion(); } catch (error) { failed = true; throw error; }",
+                  "    });",
+                  "    if (failed) {",
+                  "        pm.execution.setNextRequest(null);",
+                  "        throw new Error('Stopping at failed assertion: ' + label);",
+                  "    }",
+                  "};",
+                  "check('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const result = pm.response.json();",
+                  "check('Door count is 1/1', () => {",
+                  "    pm.expect(result.data.total_attendees).to.equal(1);",
+                  "    pm.expect(result.data.checked_in_attendees).to.equal(1);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "C06 Undo the check-in",
+          "request": {
+            "method": "DELETE",
+            "url": "{{api_base}}/public/check-in-lists/{{check_in_list_short_id}}/check-ins/{{check_in_short_id}}",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "en"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const check = (label, assertion) => {",
+                  "    let failed = false;",
+                  "    pm.test(label, () => {",
+                  "        try { assertion(); } catch (error) { failed = true; throw error; }",
+                  "    });",
+                  "    if (failed) {",
+                  "        pm.execution.setNextRequest(null);",
+                  "        throw new Error('Stopping at failed assertion: ' + label);",
+                  "    }",
+                  "};",
+                  "check('HTTP 204', () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "C07 Verify the attendee is pending again",
+          "request": {
+            "method": "GET",
+            "url": "{{api_base}}/public/check-in-lists/{{check_in_list_short_id}}/stats",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Accept-Language",
+                "value": "en"
+              }
+            ],
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const check = (label, assertion) => {",
+                  "    let failed = false;",
+                  "    pm.test(label, () => {",
+                  "        try { assertion(); } catch (error) { failed = true; throw error; }",
+                  "    });",
+                  "    if (failed) {",
+                  "        pm.execution.setNextRequest(null);",
+                  "        throw new Error('Stopping at failed assertion: ' + label);",
+                  "    }",
+                  "};",
+                  "check('HTTP 200', () => pm.response.to.have.status(200));",
+                  "const result = pm.response.json();",
+                  "check('Door count is 0/1', () => {",
+                  "    pm.expect(result.data.total_attendees).to.equal(1);",
+                  "    pm.expect(result.data.checked_in_attendees).to.equal(0);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
